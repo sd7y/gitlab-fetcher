@@ -18,7 +18,7 @@ public class Main {
         LocalProjectManager localProjectManager = new LocalProjectManager();
 
         for (int i = 0; i < projects.size(); i++) {
-            log.info("---------------------- [" + (i + 1) + "/" + projects.size() + "] ----------------------");
+            log.info("---------------------- [{}/{}] ----------------------", i + 1, projects.size());
             try {
                 localProjectManager.fetchProject(projects.get(i));
             } catch (IOException e) {

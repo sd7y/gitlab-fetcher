@@ -12,7 +12,7 @@ public class LocalProjectManager {
 
     public void fetchProject(ProjectInformation projectInformation) throws IOException {
         log.info("Processing project [{}]", projectInformation.getSshUrl());
-        String parentPath = Constants.LOCAL_PROJECTS_PATH + File.separator + projectInformation.getPath();
+        String parentPath = Constants.LOCAL_PROJECTS_PATH + File.separator + projectInformation.getId();
         String projectLocalPath = parentPath + File.separator + projectInformation.getName();
 
         log.info("Local path is {}.", projectLocalPath);

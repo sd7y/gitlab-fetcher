@@ -10,14 +10,15 @@ import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GitLabFetcher {
 
-    Log log = LogFactory.get();
+    private final Log log = LogFactory.get();
 
-    private static final String CACHE_FILE_NAME = ".project_info_cache";
+    private static final String CACHE_FILE_NAME = Constants.LOCAL_PROJECTS_PATH + File.separator + "projects.json";
 
     private ProjectInformation assembleProjectInformation(JSONObject jsonObject) {
         String pathWithNamespace = jsonObject.getStr("path_with_namespace");
@@ -38,7 +39,7 @@ public class GitLabFetcher {
     }
 
     private List<ProjectInformation> fetchProjects(int page, int prePage) {
-        log.info("Fetch projects, page=" + page + ", pre_page=" + prePage);
+        log.info("Fetch projects, page={}, pre_page={}", page, prePage);
         String url = Constants.GITLAB_DOMAIN + "/api/v4/projects" +
                 "?private_token=" + Constants.GITLAB_ACCESS_TOKEN +
                 "&page=" + page +
@@ -59,9 +60,7 @@ public class GitLabFetcher {
             projects.addAll(onePage);
         }
         JSONArray jsonArray = new JSONArray();
-        projects.forEach(projectInformation -> {
-            jsonArray.add(JSONUtil.parseObj(projectInformation.getRaw()));
-        });
+        projects.forEach(projectInformation -> jsonArray.add(JSONUtil.parseObj(projectInformation.getRaw())));
 
         new FileWriter(CACHE_FILE_NAME).write(jsonArray.toJSONString(2));
         return projects;

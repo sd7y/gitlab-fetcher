@@ -8,6 +8,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class ShellProcessor {
+
+    private ShellProcessor() {
+    }
+
     public static String exec(String scriptContent) throws IOException {
         Path path = Files.createTempFile("temp_script_", ".sh");
         new FileWriter(path.toAbsolutePath().toFile()).write(scriptContent);
