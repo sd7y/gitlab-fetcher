@@ -69,13 +69,14 @@ public class LocalProjectManager {
     }
 
     private void end() {
-        failedProjectList.forEach(project -> log.error("Processing project {} failed, id: {}, url: {}", project.getName(), project.getId(), project.getSshUrl()));
-        log.error("Failed count {}", failedProjectList.size());
         if (!failedProjectList.isEmpty()) {
+            failedProjectList.forEach(project -> log.error("Processing project {} failed, id: {}, url: {}", project.getName(), project.getId(), project.getSshUrl()));
+            log.error("Failed count {}", failedProjectList.size());
             log.error("Retrying...");
             List<Project> retriedProjectList = new ArrayList<>(failedProjectList);
             fetchProjects(retriedProjectList);
         } else {
+            log.info("All projects have been processed");
             executorService.shutdown();
         }
     }
