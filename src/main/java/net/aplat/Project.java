@@ -1,13 +1,13 @@
 package net.aplat;
 
-public class ProjectInformation {
+public class Project {
     private String id;
     private String sshUrl;
     private String path;
     private String name;
     private String raw;
 
-    public ProjectInformation(String id, String sshUrl, String path, String name, String raw) {
+    public Project(String id, String sshUrl, String path, String name, String raw) {
         this.id = id;
         this.sshUrl = sshUrl;
         this.path = path;
