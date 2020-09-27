@@ -20,6 +20,7 @@ public class LocalProjectManager {
     private List<Project> failedProjectList = new ArrayList<>();
 
     private int processed = 0;
+    private int success = 0;
     private int processing = 0;
     private int totalCount = 0;
 
@@ -31,14 +32,14 @@ public class LocalProjectManager {
         String projectLocalPath = parentPath + File.separator + project.getName();
 
         logContent.append("Local path is ").append(projectLocalPath).append(".").append("\n");
-        ShellProcessor.Result result;
+        ShellUtil.Result result;
         if (!new File(projectLocalPath).isDirectory()) {
             logContent.append(projectLocalPath).append(" is not exists.").append("\n");
-            result = ShellProcessor.exec("mkdir -p " + parentPath + "\n" +
+            result = ShellUtil.exec("mkdir -p " + parentPath + "\n" +
                     "cd " + parentPath + "\n" +
                     "git clone " + project.getSshUrl() + "\n");
         } else {
-            result = ShellProcessor.exec("cd " + projectLocalPath + "\n" +
+            result = ShellUtil.exec("cd " + projectLocalPath + "\n" +
                     "git fetch --prune --prune-tags\n");
         }
         if (result.getExitValue() != 0) {
@@ -49,20 +50,21 @@ public class LocalProjectManager {
     }
 
     private synchronized void printStart() throws InterruptedException {
-        log.info("---------------------- [{}/{}/{}] ----------------------", processed, processing, totalCount);
+        log.info("---------------------- [{}({})/{}/{}] ----------------------", processed, success, processing, totalCount);
         processing++;
         TimeUnit.MILLISECONDS.sleep(300);
     }
 
     private synchronized void printEnd(String logContent, int exitValue) {
         processed++;
-        log.info("---------------------- [{}/{}/{}] ----------------------", processed, processing, totalCount);
         logContent = "\n========================================================\n" + logContent + "\n========================================================\n";
         if (exitValue == 0) {
+            success++;
             log.info(logContent);
         } else {
             log.error("\nExit value is " + exitValue + "." + logContent);
         }
+        log.info("---------------------- [{}({})/{}/{}] ----------------------", processed, success, processing, totalCount);
         if (processed == totalCount) {
             end();
         }
@@ -88,6 +90,7 @@ public class LocalProjectManager {
 
     public void fetchProjects(List<Project> projects) {
         processed = 0;
+        success = 0;
         processing = 0;
         failedProjectList = new ArrayList<>();
         totalCount = projects.size();
