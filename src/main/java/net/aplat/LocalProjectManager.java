@@ -40,7 +40,15 @@ public class LocalProjectManager {
                     "git clone " + project.getSshUrl() + "\n");
         } else {
             result = ShellUtil.exec("cd " + projectLocalPath + "\n" +
-                    "git fetch --prune --prune-tags\n");
+                    "git fetch --prune --prune-tags\n" +
+                    // "default_branch=\"$(git remote show origin | grep 'HEAD branch' | awk '{print $3}')\"\n" +
+                    "default_branch=\"$(git branch -r --points-at refs/remotes/origin/HEAD | grep '\\->' | cut -d' ' -f5 | cut -d/ -f2)\"\n" +
+                    // "if [[ \"$default_branch\" == \"(unknown)\" ]]; then\n" +
+                    "if [[ -z \"$default_branch\" ]]; then\n" +
+                    "  exit 0\n" +
+                    "fi\n" +
+                    "git checkout $default_branch\n" +
+                    "git reset --hard origin/$default_branch\n");
         }
         if (result.getExitValue() != 0) {
             addToFailedList(project);

@@ -72,12 +72,13 @@ public class ProjectListFetcher {
     }
 
     public List<Project> fetchAllProjects() {
-        if (FileUtil.file(CACHE_FILE_NAME).exists()) {
-            log.info("Read gitlab from cache file.");
-            return fetchAllProjectsFromCache();
-        } else {
+        // if (FileUtil.file(CACHE_FILE_NAME).exists()) {
+        //     log.info("Read gitlab from cache file.");
+        //     return fetchAllProjectsFromCache();
+        // } else {
+        //     return fetchAllProjectsFromGitLab();
+        // }
             return fetchAllProjectsFromGitLab();
-        }
     }
 
 }
