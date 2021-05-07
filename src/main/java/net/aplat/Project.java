@@ -1,18 +1,22 @@
 package net.aplat;
 
+import java.util.Date;
+
 public class Project {
     private String id;
     private String sshUrl;
     private String path;
     private String name;
     private String raw;
+    private Date lastActivityAt;
 
-    public Project(String id, String sshUrl, String path, String name, String raw) {
+    public Project(String id, String sshUrl, String path, String name, String raw, Date lastActivityAt) {
         this.id = id;
         this.sshUrl = sshUrl;
         this.path = path;
         this.name = name;
         this.raw = raw;
+        this.lastActivityAt = lastActivityAt;
     }
 
     public String getId() {
@@ -53,5 +57,13 @@ public class Project {
 
     public void setRaw(String raw) {
         this.raw = raw;
+    }
+
+    public Date getLastActivityAt() {
+        return lastActivityAt;
+    }
+
+    public void setLastActivityAt(Date lastActivityAt) {
+        this.lastActivityAt = lastActivityAt;
     }
 }

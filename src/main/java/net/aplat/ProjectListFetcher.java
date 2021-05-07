@@ -12,6 +12,7 @@ import cn.hutool.log.LogFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ProjectListFetcher {
@@ -27,8 +28,10 @@ public class ProjectListFetcher {
         int index = pathWithNamespace.lastIndexOf('/');
         String name = pathWithNamespace.substring(index + 1);
         String path = pathWithNamespace.substring(0, index);
-        return new Project(id, sshUrl, path, name, jsonObject.toJSONString(2));
+        Date lastActivityAt = DateUtil.parseDate(jsonObject.getStr("last_activity_at"));
+        return new Project(id, sshUrl, path, name, jsonObject.toJSONString(2), lastActivityAt);
     }
+
 
     private List<Project> assembleProjectInformation(JSONArray jsonArray) {
         List<Project> list = new ArrayList<>();

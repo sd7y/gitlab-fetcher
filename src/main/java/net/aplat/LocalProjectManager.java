@@ -3,9 +3,9 @@ package net.aplat;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,18 +28,19 @@ public class LocalProjectManager {
         printStart();
         StringBuilder logContent = new StringBuilder();
         logContent.append("Processing project [").append(project.getSshUrl()).append("]").append("\n");
-        String parentPath = Constants.LOCAL_PROJECTS_PATH + File.separator + project.getId();
-        String projectLocalPath = parentPath + File.separator + project.getName();
+        String parentPath = Constants.LOCAL_PROJECTS_PATH;
+        String localDirName = project.getId() + "-" + project.getName();
+        String localPath = Constants.LOCAL_PROJECTS_PATH + File.separator + localDirName;
 
-        logContent.append("Local path is ").append(projectLocalPath).append(".").append("\n");
+        logContent.append("Local path is ").append(localPath).append(".").append("\n");
         ShellUtil.Result result;
-        if (!new File(projectLocalPath).isDirectory()) {
-            logContent.append(projectLocalPath).append(" is not exists.").append("\n");
+        if (!new File(localPath).isDirectory()) {
+            logContent.append(localPath).append(" is not exists.").append("\n");
             result = ShellUtil.exec("mkdir -p " + parentPath + "\n" +
                     "cd " + parentPath + "\n" +
-                    "git clone " + project.getSshUrl() + "\n");
+                    "git clone " + project.getSshUrl() + " " + localDirName + "\n");
         } else {
-            result = ShellUtil.exec("cd " + projectLocalPath + "\n" +
+            result = ShellUtil.exec("cd " + localPath + "\n" +
                     "git fetch --prune --prune-tags\n" +
                     // "default_branch=\"$(git remote show origin | grep 'HEAD branch' | awk '{print $3}')\"\n" +
                     "default_branch=\"$(git branch -r --points-at refs/remotes/origin/HEAD | grep '\\->' | cut -d' ' -f5 | cut -d/ -f2)\"\n" +
@@ -96,13 +97,33 @@ public class LocalProjectManager {
         failedProjectList.add(project);
     }
 
+    private long getLastUpdatedDate() {
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(Constants.LOCAL_PROJECTS_PATH + File.separator + "lastUpdated"))) {
+            return DateUtil.parseDate(bufferedReader.readLine()).getTime();
+        } catch (FileNotFoundException e) {
+            return 0;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+    private void updateLastUpdatedDate(Date date) {
+        new cn.hutool.core.io.file.FileWriter(Constants.LOCAL_PROJECTS_PATH + File.separator + "lastUpdated").write(DateUtil.format(date));
+    }
+
     public void fetchProjects(List<Project> projects) {
         processed = 0;
         success = 0;
         processing = 0;
         failedProjectList = new ArrayList<>();
         totalCount = projects.size();
+        long lastUpdatedDate = getLastUpdatedDate();
         for (final Project project : projects) {
+            if (project.getLastActivityAt().getTime() < lastUpdatedDate) {
+                log.info("Skip project {}", project.getName());
+                totalCount--;
+                continue;
+            }
             executorService.execute(() -> {
                 try {
                     fetchProject(project);
@@ -114,6 +135,7 @@ public class LocalProjectManager {
                 }
             });
         }
+        updateLastUpdatedDate(new Date());
     }
 
 }
