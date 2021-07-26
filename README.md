@@ -13,3 +13,8 @@ export LOCAL_PROJECTS_PATH=<the-local-path-where-you-store-the-projects>
 ```
 
 2. Execute `./run.sh`
+
+
+## Search commit in all git project
+
+`./find.sh <key-word>`
